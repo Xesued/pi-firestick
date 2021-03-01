@@ -5,8 +5,10 @@ Simple project to make your Raspberry pi capible of being a
 conroller for the Amazon Firestick.
 
 
-Requirements
+Requirements 
 --------------
+
+(IF we are using the IR remote stuff....)
 
 Install the [`pigpio`](http://abyz.me.uk/rpi/pigpio/index.html):
 
