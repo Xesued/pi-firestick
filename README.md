@@ -22,3 +22,11 @@ Then run it:
 sudo pigpiod
 ```
 
+Usage
+-------------
+
+Record IR codes for your TV:
+
+```bash
+python3 pi-firestick read
+```
