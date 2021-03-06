@@ -35,6 +35,12 @@ if args.start:
 
             elif key_input == 'LEFT':
                 ir_remote.send('vol-')
+            
+            elif key_input == 'BTN_A':
+                ir_remote.send('mute')
+            
+            elif key_input == 'BTN_B':
+                ir_remote.send('pwr')
 
             print(key_input)
 

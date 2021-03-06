@@ -6,10 +6,10 @@ JS_LEFT = "LEFT"
 JS_RIGHT = "RIGHT"
 JS_X_CENTER = "X_CENTER"
 JS_Y_CENTER = "Y_CENTER"
-BTN_A = "A"
-BTN_B = "B"
-BTN_C = "C"
-BTN_D = "D"
+BTN_A = "BTN_A"
+BTN_B = "BTN_B"
+BTN_C = "BTN_C"
+BTN_D = "BTN_D"
 
 class ArcadeStick:
   device = None
@@ -57,6 +57,9 @@ class ArcadeStick:
         else:
           yield JS_Y_CENTER
 
-      if event.type == evdev.ecodes.BTN: 
-        print(evdev.util.categorize(event))
-        yield "TUTTON"
+      # Buttons
+      if event.type == evdev.ecodes.EV_KEY:
+        if event.code == evdev.ecodes.BTN_TRIGGER:
+          yield BTN_A
+        if event.code == evdev.ecodes.BTN_THUMB:
+          yield BTN_B
