@@ -28,7 +28,7 @@ class ArcadeStick:
   def __init__(self, device):
      self.device = device 
 
-  def read_input(self, cb):
+  def read_input(self):
     """
     Calls the function given when there is an input to the arcade stick.  
     
@@ -39,6 +39,7 @@ class ArcadeStick:
 
       # X axis
       if event.type == evdev.ecodes.EV_ABS and event.code == evdev.ecodes.ABS_X:
+        print(evdev.util.categorize(event))
         if event.value > 200:
           yield JS_RIGHT
         if event.value < 50:
@@ -48,9 +49,14 @@ class ArcadeStick:
 
       # Y axis
       if event.type == evdev.ecodes.EV_ABS and event.code == evdev.ecodes.ABS_Y:
+        print(evdev.util.categorize(event))
         if event.value > 200:
           yield JS_UP
         if event.value < 50:
           yield JS_DOWN
         else:
-          JS_Y_CENTER
+          yield JS_Y_CENTER
+
+      if event.type == evdev.ecodes.BTN: 
+        print(evdev.util.categorize(event))
+        yield "TUTTON"

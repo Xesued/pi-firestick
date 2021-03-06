@@ -1,7 +1,8 @@
 import argparse
 import json
 
-from pifirestick.remote.arcade_stick import ArcadeStick
+from ir import IrRemote
+from remote.arcade_stick import ArcadeStick
 
 p = argparse.ArgumentParser()
 g = p.add_mutually_exclusive_group(required=True)
@@ -22,16 +23,23 @@ if args.start:
 
     codes = json.load(f)
     stick = ArcadeStick.get_arcade() 
+    ir_remote = IrRemote(17, codes) 
+
     try:
-        for key_input in stick.on_input(): 
-            print('--- ')
+        for key_input in stick.read_input(): 
+            # Installed joystick sideways
+            
+            print("key_input: {}".format(key_input))
+            if key_input == 'RIGHT':
+                ir_remote.send('vol+')
+
+            elif key_input == 'LEFT':
+                ir_remote.send('vol-')
+
             print(key_input)
-            # TODO: Find a method to make this work with edge GPIO detection,
-            # or some sort of change detection from the USB.
-            # time.sleep(0.1)
 
     except KeyboardInterrupt:
-        sys.exit(0)
+        exit(0)
 else:
     print("Lets read in the values")
     # import ir.read
