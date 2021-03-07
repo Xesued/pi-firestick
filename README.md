@@ -15,11 +15,7 @@ Install the [`pigpio`](http://abyz.me.uk/rpi/pigpio/index.html):
 ```bash
 sudo apt-get update
 sudo apt-get install pigpio python-pigpio python3-pigpio
-```
-
-Then run it:
-```bash
-sudo pigpiod
+sudo systemctl enable pigpiod
 ```
 
 Usage
@@ -30,3 +26,12 @@ Record IR codes for your TV:
 ```bash
 python3 pi-firestick read
 ```
+
+
+### Installing the service
+If you want to have the remote startup, copy the service file to your local services:
+```
+sudo cp pifirestick.service /etc/systemd/system/pifirestick.service
+sudo systemctl enable pifirestick.service
+```
+

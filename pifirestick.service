@@ -1,0 +1,15 @@
+[Unit]
+Description=Pi Firestick Remote
+After=pigpiod.service
+Requires=pigpiod.service
+
+[Service]
+ExecStart=/usr/bin/python3 pifirestick -s
+WorkingDirectory=/home/pi/pi-firestick
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
