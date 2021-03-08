@@ -1,8 +1,10 @@
 import argparse
 import json
 
-from ir import IrRemote
-from remote.arcade_stick import ArcadeStick
+from pifirestick.bluetooth import *
+from pifirestick.remote.gamepad import Gamepad
+from pifirestick.ir import IrRemote
+from pifirestick.remote.arcade_stick import ArcadeStick
 
 p = argparse.ArgumentParser()
 g = p.add_mutually_exclusive_group(required=True)
@@ -24,6 +26,9 @@ if args.start:
     codes = json.load(f)
     stick = ArcadeStick.get_arcade() 
     ir_remote = IrRemote(17, codes) 
+    bt = Bluetooth("sdp_record.xml","000508", "Pi\ Gamepad")
+    bt.listen()
+    gp = Gamepad()
 
     try:
         for key_input in stick.read_input(): 
