@@ -30,7 +30,7 @@ Usage
 Record IR codes for your TV:
 
 ```bash
-python3 pi-firestick read
+python3 -u main.py read
 ```
 
 
