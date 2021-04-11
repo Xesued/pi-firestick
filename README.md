@@ -8,7 +8,7 @@ conroller for the Amazon Firestick.
 Requirements 
 --------------
 
-(IF we are using the IR remote stuff....)
+(If we are using the IR remote...)
 
 Install the [`pigpio`](http://abyz.me.uk/rpi/pigpio/index.html):
 
@@ -16,6 +16,12 @@ Install the [`pigpio`](http://abyz.me.uk/rpi/pigpio/index.html):
 sudo apt-get update
 sudo apt-get install pigpio python-pigpio python3-pigpio
 sudo systemctl enable pigpiod
+```
+
+
+Install requirements
+```bash
+pip3 install -r requirments.txt
 ```
 
 Usage

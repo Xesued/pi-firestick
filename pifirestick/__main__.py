@@ -22,25 +22,28 @@ if args.start:
         exit(0)
 
     codes = json.load(f)
-    stick = ArcadeStick.get_arcade() 
-    ir_remote = IrRemote(17, codes) 
+    stick = ArcadeStick.get_arcade()
+    ir_remote = IrRemote(17, codes)
 
     try:
-        for key_input in stick.read_input(): 
-            # Installed joystick sideways
-            
-            print("key_input: {}".format(key_input))
-            if key_input == 'RIGHT':
-                ir_remote.send('vol+')
+        for key_input in stick.read_input():
+            # TODO: Use a mapping system rather than a swtich.
+            action = get_action(key_input)
+            action.send()
 
-            elif key_input == 'LEFT':
-                ir_remote.send('vol-')
-            
-            elif key_input == 'BTN_A':
-                ir_remote.send('mute')
-            
-            elif key_input == 'BTN_B':
-                ir_remote.send('pwr')
+            # Installed joystick sideways
+            print("key_input: {}".format(key_input))
+            if key_input == "RIGHT":
+                ir_remote.send("vol+")
+
+            elif key_input == "LEFT":
+                ir_remote.send("vol-")
+
+            elif key_input == "BTN_A":
+                ir_remote.send("mute")
+
+            elif key_input == "BTN_B":
+                ir_remote.send("pwr")
 
             print(key_input)
 
