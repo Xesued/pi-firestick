@@ -1,9 +1,9 @@
 import argparse
 import json
+import time
 
 # from pifirestick.bluetooth import *
 # from pifirestick.remote.gamepad import Gamepad
-from pifirestick.ir import IrRemote
 
 # from pifirestick.remote.arcade_stick import ArcadeStick
 
@@ -17,47 +17,35 @@ p.add_argument("id", nargs="+", type=str, help="IR codes")
 
 args = p.parse_args()
 
-ir_remote = IrRemote("remote_codes")
+codes_file = "keycodes.json"
 
 if args.start:
-    print("Time to play")
+    import piir
+    from pifirestick.lcd import Lcd
 
-    stick = ArcadeStick.get_arcade()
-    bt = Bluetooth("sdp_record.xml", "000508", "Pi\ Gamepad")
-    bt.listen()
-    gp = Gamepad()
+    remote = piir.Remote(codes_file, 27)
+    lcd = Lcd()
 
     try:
-        for key_input in stick.read_input():
-            # TODO: Use a mapping system rather than a swtich.
-            # action = get_action(key_input)
-            # action.send()
+        while True:
+            lcd.lcd_display_string("Sending command:", 1)
+            lcd.lcd_display_string("Mute...",2)
+            remote.send("mute")
+            time.sleep(1)
 
-            # Installed joystick sideways
-            print("key_input: {}".format(key_input))
-            if key_input == "RIGHT":
-                ir_remote.send("vol+")
-
-            elif key_input == "LEFT":
-                ir_remote.send("vol-")
-
-            elif key_input == "BTN_A":
-                ir_remote.send("mute")
-
-            elif key_input == "BTN_B":
-                ir_remote.send("pwr")
-
-            print(key_input)
+            lcd.lcd_clear()
+            time.sleep(2)
 
     except KeyboardInterrupt:
         exit(0)
 else:
-    from piir.io import receive_pi
+    from piir.io import receive
     from piir.decode import decode
     from piir.prettify import prettify
 
-    keys = args.id
-    for keyname in keys:
+    keys = {} 
+    
+    for keyname in args.id:
         while True:
             data = decode(receive(22))
             if data:
@@ -67,6 +55,3 @@ else:
     f = open("keycodes.json", "w")
     f.write(json.dumps(prettify(keys), indent=2))
     f.close()
-
-    # print("Lets read in the values")
-    # ir_remote.read(args.id)
