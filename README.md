@@ -4,6 +4,10 @@ PI Firestick
 Simple project to make your Raspberry pi capible of being a 
 conroller for the Amazon Firestick.
 
+Insperation
+--------------
+https://blog.gordonturner.com/2020/05/31/raspberry-pi-ir-receiver/
+
 
 Requirements 
 --------------

@@ -27,19 +27,18 @@ class CommandNotFound(Exception):
 
 
 class IrRemote:
+
+    pi = pigpio.pi()  # Connect to Pi.
+    if not self.pi.connected:
+        exit(0)
+    pi.set_mode(self._send_pin, pigpio.OUTPUT)  # IR TX connected to this GPIO
+    pi.wave_add_new()
+
     def __init__(self, code_file, send_pin=27, receive_pi=22):
         self._code_file = code_file
         self._codes = self._read_code_file(code_file)
         self._send_pin = send_pin
         self._receive_pin = receive_pi
-        self.pi = pigpio.pi()  # Connect to Pi.
-        self._incoming_code = []
-
-        if not self.pi.connected:
-            exit(0)
-
-        self.pi.set_mode(self._send_pin, pigpio.OUTPUT)  # IR TX connected to this GPIO
-        self.pi.wave_add_new()
 
     @staticmethod
     def _read_code_file(file_name):
@@ -168,26 +167,39 @@ class IrRemote:
         f.write(json.dumps(records, sort_keys=True).replace("],", "],\n") + "\n")
         f.close()
 
-    def cbf(self, gpio, level, tick):
+    @classmethod
+    def cbf(cls, gpio, level, tick):
+        # global last_tick, in_code, code, fetching_code
         if level != pigpio.TIMEOUT:
-            edge = pigpio.tickDiff(self.last_tick, tick)
-            self.last_tick = tick
+            edge = pigpio.tickDiff(cls.last_tick, tick)
+            cls.last_tick = tick
 
-            if self._fetching_code:
-                if (edge > PRE_US) and (not in_code):  # Start of a code.
+            if cls.fetching_code:
+
+                if (edge > PRE_US) and (not cls.in_code):  # Start of a code.
                     in_code = True
-                    self.pi.set_watchdog(self._receive_pin, POST_MS)  # Start watchdog.
+                    cls.pi.set_watchdog(GPIO, POST_MS)  # Start watchdog.
 
-                elif (edge > POST_US) and in_code:  # End of a code.
+                elif (edge > POST_US) and cls.in_code:  # End of a code.
                     in_code = False
-                    self.pi.set_watchdog(self._receive_pin, 0)  # Cancel watchdog.
+                    cls.pi.set_watchdog(GPIO, 0)  # Cancel watchdog.
                     end_of_code()
 
                 elif in_code:
                     code.append(edge)
 
         else:
-            self.pi.set_watchdog(self._receive_pin, 0)  # Cancel watchdog.
+            pi.set_watchdog(GPIO, 0)  # Cancel watchdog.
             if in_code:
                 in_code = False
                 end_of_code()
+
+    @classmethod
+    def end_of_code(cls):
+        global code, fetching_code
+        if len(cls.input_code) > SHORT:
+            normalise(cls.input_code)
+            fetching_code = False
+        else:
+            cls.input_code = []
+            print("Short code, probably a repeat, try again")

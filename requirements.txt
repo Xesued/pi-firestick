@@ -1,2 +1,3 @@
 pigpio==1.78
 evdev==1.4.0
+PiIR==0.2.5

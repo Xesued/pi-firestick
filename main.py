@@ -4,6 +4,7 @@ import json
 # from pifirestick.bluetooth import *
 # from pifirestick.remote.gamepad import Gamepad
 from pifirestick.ir import IrRemote
+
 # from pifirestick.remote.arcade_stick import ArcadeStick
 
 p = argparse.ArgumentParser()
@@ -51,6 +52,21 @@ if args.start:
     except KeyboardInterrupt:
         exit(0)
 else:
-    print("Lets read in the values")
-    ir_remote.read(args.id)
+    from piir.io import receive_pi
+    from piir.decode import decode
+    from piir.prettify import prettify
 
+    keys = args.id
+    for keyname in keys:
+        while True:
+            data = decode(receive(22))
+            if data:
+                break
+        keys[keyname] = data
+
+    f = open("keycodes.json", "w")
+    f.write(json.dumps(prettify(keys), indent=2))
+    f.close()
+
+    # print("Lets read in the values")
+    # ir_remote.read(args.id)

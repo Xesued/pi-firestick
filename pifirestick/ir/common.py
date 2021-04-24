@@ -318,13 +318,3 @@ def tidy(records):
     tidy_mark_space(records, 0)  # Marks.
 
     tidy_mark_space(records, 1)  # Spaces.
-
-
-def end_of_code():
-    global code, fetching_code
-    if len(code) > SHORT:
-        normalise(code)
-        fetching_code = False
-    else:
-        code = []
-        print("Short code, probably a repeat, try again")
