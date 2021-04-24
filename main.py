@@ -1,10 +1,10 @@
 import argparse
 import json
 
-from pifirestick.bluetooth import *
-from pifirestick.remote.gamepad import Gamepad
+# from pifirestick.bluetooth import *
+# from pifirestick.remote.gamepad import Gamepad
 from pifirestick.ir import IrRemote
-from pifirestick.remote.arcade_stick import ArcadeStick
+# from pifirestick.remote.arcade_stick import ArcadeStick
 
 p = argparse.ArgumentParser()
 g = p.add_mutually_exclusive_group(required=True)
@@ -33,8 +33,8 @@ if args.start:
     try:
         for key_input in stick.read_input():
             # TODO: Use a mapping system rather than a swtich.
-            action = get_action(key_input)
-            action.send()
+            # action = get_action(key_input)
+            # action.send()
 
             # Installed joystick sideways
             print("key_input: {}".format(key_input))
@@ -56,4 +56,5 @@ if args.start:
         exit(0)
 else:
     print("Lets read in the values")
-    # import ir.read
+    import ir.read
+    ir.read.read_ir()
