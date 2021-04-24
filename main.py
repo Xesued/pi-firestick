@@ -10,9 +10,9 @@ import time
 p = argparse.ArgumentParser()
 g = p.add_mutually_exclusive_group(required=True)
 g.add_argument("-s", "--start", help="Start up the pi_firestick", action="store_true")
-g.add_argument(
-    "-r", "--record_ir", help="Start up the pi_firestick", action="store_true"
-)
+g.add_argument("-r", "--record", help="Start up the pi_firestick", action="store_true")
+g.add_argument("-b", "--bluetooth", help="Setup bluetooth", action="store_true")
+
 p.add_argument("id", nargs="+", type=str, help="IR codes")
 
 args = p.parse_args()
@@ -29,7 +29,7 @@ if args.start:
     try:
         while True:
             lcd.lcd_display_string("Sending command:", 1)
-            lcd.lcd_display_string("Mute...",2)
+            lcd.lcd_display_string("Mute...", 2)
             remote.send("mute")
             time.sleep(1)
 
@@ -38,13 +38,14 @@ if args.start:
 
     except KeyboardInterrupt:
         exit(0)
-else:
+
+elif args.record:
     from piir.io import receive
     from piir.decode import decode
     from piir.prettify import prettify
 
-    keys = {} 
-    
+    keys = {}
+
     for keyname in args.id:
         while True:
             data = decode(receive(22))
@@ -55,3 +56,9 @@ else:
     f = open("keycodes.json", "w")
     f.write(json.dumps(prettify(keys), indent=2))
     f.close()
+
+else:
+    from pifirestick.bluetooth import lookUpNearbyBluetoothDevices
+
+    devices = lookUpNearbyBluetoothDevices()
+    print(devices)
