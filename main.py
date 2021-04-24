@@ -12,20 +12,16 @@ g.add_argument("-s", "--start", help="Start up the pi_firestick", action="store_
 g.add_argument(
     "-r", "--record_ir", help="Start up the pi_firestick", action="store_true"
 )
+p.add_argument("id", nargs="+", type=str, help="IR codes")
 
 args = p.parse_args()
 
+ir_remote = IrRemote("remote_codes")
+
 if args.start:
     print("Time to play")
-    try:
-        f = open("remote_codes", "r")
-    except:
-        print("Can't open codes file")
-        exit(0)
 
-    codes = json.load(f)
     stick = ArcadeStick.get_arcade()
-    ir_remote = IrRemote(17, codes)
     bt = Bluetooth("sdp_record.xml", "000508", "Pi\ Gamepad")
     bt.listen()
     gp = Gamepad()
@@ -56,5 +52,5 @@ if args.start:
         exit(0)
 else:
     print("Lets read in the values")
-    import ir.read
-    ir.read.read_ir()
+    ir_remote.read(args.id)
+

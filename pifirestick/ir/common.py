@@ -328,33 +328,3 @@ def end_of_code():
     else:
         code = []
         print("Short code, probably a repeat, try again")
-
-
-def cbf(gpio, level, tick):
-
-    global last_tick, in_code, code, fetching_code
-
-    if level != pigpio.TIMEOUT:
-
-        edge = pigpio.tickDiff(last_tick, tick)
-        last_tick = tick
-
-        if fetching_code:
-
-            if (edge > PRE_US) and (not in_code):  # Start of a code.
-                in_code = True
-                pi.set_watchdog(GPIO, POST_MS)  # Start watchdog.
-
-            elif (edge > POST_US) and in_code:  # End of a code.
-                in_code = False
-                pi.set_watchdog(GPIO, 0)  # Cancel watchdog.
-                end_of_code()
-
-            elif in_code:
-                code.append(edge)
-
-    else:
-        pi.set_watchdog(GPIO, 0)  # Cancel watchdog.
-        if in_code:
-            in_code = False
-            end_of_code()

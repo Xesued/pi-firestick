@@ -1,7 +1,23 @@
 import time
 import pigpio
+import json
 
-from .common import FREQ, GAP_S
+# import os
+
+from .common import (
+    FREQ,
+    GAP_S,
+    POST_MS,
+    PRE_US,
+    POST_US,
+    GLITCH,
+    backup,
+    tidy,
+    carrier,
+    cbf,
+    compare,
+    end_of_code,
+)
 
 
 class CommandNotFound(Exception):
@@ -11,16 +27,28 @@ class CommandNotFound(Exception):
 
 
 class IrRemote:
-    def __init__(self, gpio_pin, codes):
-        self._codes = codes
-        self._pin = gpio_pin
+    def __init__(self, code_file, send_pin=27, receive_pi=22):
+        self._code_file = code_file
+        self._codes = self._read_code_file(code_file)
+        self._send_pin = send_pin
+        self._receive_pin = receive_pi
         self.pi = pigpio.pi()  # Connect to Pi.
+        self._incoming_code = []
 
         if not self.pi.connected:
             exit(0)
 
-        self.pi.set_mode(gpio_pin, pigpio.OUTPUT)  # IR TX connected to this GPIO
+        self.pi.set_mode(self._send_pin, pigpio.OUTPUT)  # IR TX connected to this GPIO
         self.pi.wave_add_new()
+
+    @staticmethod
+    def _read_code_file(file_name):
+        try:
+            f = open(file_name, "r")
+            return json.load(f)
+        except:
+            print("Can't open codes file")
+            exit(0)
 
     def send(self, cmd):
         code = self._codes[cmd]
@@ -46,7 +74,7 @@ class IrRemote:
                 wave[i] = spaces_wid[ci]
             else:  # Mark
                 if ci not in marks_wid:
-                    wf = self._carrier(self._pin, FREQ, ci)
+                    wf = carrier(self._send_pin, FREQ, ci)
                     self.pi.wave_add_generic(wf)
                     marks_wid[ci] = self.pi.wave_create()
                 wave[i] = marks_wid[ci]
@@ -73,25 +101,7 @@ class IrRemote:
 
         spaces_wid = {}
 
-    def _carrier(self, gpio, frequency, micros):
-        """
-        Generate carrier square wave.
-        """
-        wf = []
-        cycle = 1000.0 / frequency
-        cycles = int(round(micros / cycle))
-        on = int(round(cycle / 2.0))
-        sofar = 0
-        for c in range(cycles):
-            target = int(round((c + 1) * cycle))
-            sofar += on
-            off = target - sofar
-            sofar += off
-            wf.append(pigpio.pulse(1 << gpio, 0, on))
-            wf.append(pigpio.pulse(0, 1 << gpio, off))
-        return wf
-
-    def read(self):
+    def read(self, input_names):
         try:
             f = open(FILE, "r")
             records = json.load(f)
@@ -99,29 +109,32 @@ class IrRemote:
         except:
             records = {}
 
-        pi.set_mode(GPIO, pigpio.INPUT)  # IR RX connected to this GPIO.
-        pi.set_glitch_filter(GPIO, GLITCH)  # Ignore glitches.
-        cb = pi.callback(GPIO, pigpio.EITHER_EDGE, cbf)
+        self.pi.set_mode(
+            self._receive_pin, pigpio.INPUT
+        )  # IR RX connected to this GPIO.
+        self.pi.set_glitch_filter(self._receive_pin, GLITCH)  # Ignore glitches.
+        self.pi.callback(self._receive_pin, pigpio.EITHER_EDGE, self.cbf)
 
         # Process each id
 
         print("Recording")
-        for arg in args.id:
-            print("Press key for '{}'".format(arg))
-            code = []
+        for input_code in input_names:
+            print("Press key for '{}'".format(input_code))
+            self._incoming_code = []
             fetching_code = True
             while fetching_code:
                 time.sleep(0.1)
             print("Okay")
             time.sleep(0.5)
 
-            if CONFIRM:
+            # if CONFIRM:
+            if True:
                 press_1 = code[:]
                 done = False
 
                 tries = 0
                 while not done:
-                    print("Press key for '{}' to confirm".format(arg))
+                    print("Press key for '{}' to confirm".format(input_cod))
                     code = []
                     fetching_code = True
                     while fetching_code:
@@ -130,7 +143,7 @@ class IrRemote:
                     the_same = compare(press_1, press_2)
                     if the_same:
                         done = True
-                        records[arg] = press_1[:]
+                        records[code] = press_1[:]
                         print("Okay")
                         time.sleep(0.5)
                     else:
@@ -138,19 +151,43 @@ class IrRemote:
                         if tries <= 3:
                             print("No match")
                         else:
-                            print("Giving up on key '{}'".format(arg))
+                            print("Giving up on key '{}'".format(code))
                             done = True
                         time.sleep(0.5)
-            else:  # No confirm.
-                records[arg] = code[:]
+            # else:  # No confirm.
+            #     records[arg] = code[:]
 
-        pi.set_glitch_filter(GPIO, 0)  # Cancel glitch filter.
-        pi.set_watchdog(GPIO, 0)  # Cancel watchdog.
+        self.pi.set_glitch_filter(self._receive_pin, 0)  # Cancel glitch filter.
+        self.pi.set_watchdog(self._receive_pin, 0)  # Cancel watchdog.
 
         tidy(records)
 
-        backup(FILE)
+        backup(self._code_file)
 
-        f = open(FILE, "w")
+        f = open(self._code_file, "w")
         f.write(json.dumps(records, sort_keys=True).replace("],", "],\n") + "\n")
         f.close()
+
+    def cbf(self, gpio, level, tick):
+        if level != pigpio.TIMEOUT:
+            edge = pigpio.tickDiff(self.last_tick, tick)
+            self.last_tick = tick
+
+            if self._fetching_code:
+                if (edge > PRE_US) and (not in_code):  # Start of a code.
+                    in_code = True
+                    self.pi.set_watchdog(self._receive_pin, POST_MS)  # Start watchdog.
+
+                elif (edge > POST_US) and in_code:  # End of a code.
+                    in_code = False
+                    self.pi.set_watchdog(self._receive_pin, 0)  # Cancel watchdog.
+                    end_of_code()
+
+                elif in_code:
+                    code.append(edge)
+
+        else:
+            self.pi.set_watchdog(self._receive_pin, 0)  # Cancel watchdog.
+            if in_code:
+                in_code = False
+                end_of_code()
