@@ -58,7 +58,8 @@ elif args.record:
     f.close()
 
 else:
-    from pifirestick.bluetooth import lookUpNearbyBluetoothDevices
+    from pifirestick.bluetooth import lookUpNearbyBluetoothDevices, receiveMessages
 
+    # receiveMessages()
     devices = lookUpNearbyBluetoothDevices()
     print(devices)

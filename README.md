@@ -6,7 +6,11 @@ conroller for the Amazon Firestick.
 
 Insperation
 --------------
+IR Circuit:
 https://blog.gordonturner.com/2020/05/31/raspberry-pi-ir-receiver/
+
+Bluetooth:
+https://impythonist.wordpress.com/2014/02/01/emulate-a-bluetooth-keyboard-with-the-raspberry-pi/
 
 
 Requirements 
@@ -22,6 +26,10 @@ sudo apt-get install pigpio python-pigpio python3-pigpio
 sudo systemctl enable pigpiod
 ```
 
+Install bluetooth
+```bash
+sudo apt-get install bluetooth bluez python-bluez
+```
 
 Install requirements
 ```bash
