@@ -31,9 +31,13 @@ class ArcadeStick:
   def read_input(self):
     """
     Calls the function given when there is an input to the arcade stick.  
-    
     """
+    # print('Reading input')
+    # return
     for event in self.device.read_loop():
+      print("+++++++++++++++++")
+      print(event.type)
+      print(event.code)
       if event.type == evdev.ecodes.EV_ABS and event.code == evdev.ecodes.ABS_Z:
         continue  # ignore z-axis
 

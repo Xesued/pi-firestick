@@ -34,11 +34,12 @@ import pigpio
 
 
 
-class decoder:
+class Decoder:
+   callback = None
 
    """Class to decode mechanical rotary encoder pulses."""
 
-   def __init__(self, pi, gpioA, gpioB, callback):
+   def __init__(self, pi, gpioA, gpioB):
 
       """
       Instantiate the class with the pi and gpios connected to
@@ -80,7 +81,6 @@ class decoder:
       self.pi = pi
       self.gpioA = gpioA
       self.gpioB = gpioB
-      self.callback = callback
 
       self.levA = 0
       self.levB = 0
@@ -96,7 +96,12 @@ class decoder:
       self.cbA = self.pi.callback(gpioA, pigpio.EITHER_EDGE, self._pulse)
       self.cbB = self.pi.callback(gpioB, pigpio.EITHER_EDGE, self._pulse)
 
+   def set_callback(self, callback):
+      self.callback = callback
+
    def _pulse(self, gpio, level, tick):
+      if callback == None:
+         return
 
       """
       Decode the rotary encoder pulse.
@@ -157,7 +162,8 @@ if __name__ == "__main__":
 
    pi = pigpio.pi()
 
-   decoder = decoder(pi, 17, 18, callback)
+   decoder = Decoder(pi, 17, 18)
+   decoder.set_callback(callback)
 
    time.sleep(300)
 

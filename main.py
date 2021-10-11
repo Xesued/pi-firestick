@@ -1,11 +1,15 @@
 import argparse
 import json
 import time
+import pigpio
+import asyncio
 
 # from pifirestick.bluetooth import *
 # from pifirestick.remote.gamepad import Gamepad
-
-# from pifirestick.remote.arcade_stick import ArcadeStick
+from pifirestick.remote.arcade_stick import ArcadeStick
+from pifirestick.remote.remote import Remotes, AudioRecieverRemote, TVRemote
+from pifirestick.rotary_encoder.rotary import Decoder
+from pifirestick.lcd import Lcd
 
 p = argparse.ArgumentParser()
 g = p.add_mutually_exclusive_group(required=True)
@@ -23,18 +27,34 @@ if args.start:
     import piir
     from pifirestick.lcd import Lcd
 
-    remote = piir.Remote(codes_file, 27)
-    lcd = Lcd()
+    # Setup the Rotary decoder
+    pi = pigpio.pi()
+    decoder = Decoder(pi, 17, 18)
+
+
+    # Build the list of remotes we will use
+    remote_list = [
+        TVRemote(),
+        AudioRecieverRemote()
+    ]
+    remotes = Remotes(decoder, remote_list)
+
+    
+    # remote = piir.Remote(codes_file, 27)
+
+    async def start():
+        await remotes.start()
 
     try:
-        while True:
-            lcd.lcd_display_string("Sending command:", 1)
-            lcd.lcd_display_string("Mute...", 2)
-            remote.send("mute")
-            time.sleep(1)
+        asyncio.run(start())
+        # remotes.start()
+            # lcd.lcd_display_string("Sending command:", 1)
+            # lcd.lcd_display_string("Mute...", 2)
+            # remote.send("mute")
+            # time.sleep(1)
 
-            lcd.lcd_clear()
-            time.sleep(2)
+            # lcd.lcd_clear()
+            # time.sleep(2)
 
     except KeyboardInterrupt:
         exit(0)
