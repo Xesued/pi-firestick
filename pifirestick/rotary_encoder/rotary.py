@@ -100,7 +100,7 @@ class Decoder:
       self.callback = callback
 
    def _pulse(self, gpio, level, tick):
-      if callback == None:
+      if self.callback == None:
          return
 
       """
