@@ -42,12 +42,12 @@ if args.start:
     
     # remote = piir.Remote(codes_file, 27)
 
-    async def start():
-        await remotes.start()
+    # async def start():
+    #     await remotes.start()
 
     try:
-        asyncio.run(start())
-        # remotes.start()
+        # asyncio.run(start())
+        remotes.start()
             # lcd.lcd_display_string("Sending command:", 1)
             # lcd.lcd_display_string("Mute...", 2)
             # remote.send("mute")

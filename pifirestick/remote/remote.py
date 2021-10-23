@@ -2,7 +2,7 @@
 The remote code.  Maps the different
 remotes to the arcade inputs
 """
-
+import asyncio
 from pifirestick.remote.arcade_stick import ArcadeStick
 from pifirestick.lcd import Lcd
 
@@ -19,7 +19,7 @@ class Remotes:
         self.rotary = decoder
         self.selected_remote = remotes[0]
 
-    async def start(self):
+    def start(self):
         """ Start the remote.  This selects the first remote and 
         sends any arcade stick inputs to that remote.  When the 
         remote changes, show the current remote on the LCD Screen
@@ -30,13 +30,13 @@ class Remotes:
 
         # This should never return.. never ending generator
         # function.  This will hold the program open
-        await self._listen_to_arcade_stick()
+        self._listen_to_arcade_stick()
 
-    async def _listen_to_arcade_stick(self):
-        input = await self.arcade_stick.read_input()
-        while input:
+    def _listen_to_arcade_stick(self):
+        for input in self.arcade_stick.read_input():
+            print("New input")
+            print(input)
             self.selected_remote.on_arcade_input(input)
-            input = await self.arcade_stick.read_input()
 
     def _listen_to_rotary(self):
         self.rotary.set_callback(self.on_rotary_change) 

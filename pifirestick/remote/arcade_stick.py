@@ -35,35 +35,32 @@ class ArcadeStick:
     # print('Reading input')
     # return
     for event in self.device.read_loop():
-      print("+++++++++++++++++")
-      print(event.type)
-      print(event.code)
       if event.type == evdev.ecodes.EV_ABS and event.code == evdev.ecodes.ABS_Z:
         continue  # ignore z-axis
 
       # X axis
       if event.type == evdev.ecodes.EV_ABS and event.code == evdev.ecodes.ABS_X:
-        print(evdev.util.categorize(event))
+        # print(evdev.util.categorize(event))
         if event.value > 200:
-          yield JS_RIGHT
+          yield (JS_RIGHT,event.value)
         if event.value < 50:
-          yield JS_LEFT
-        else:
-          yield JS_X_CENTER
+          yield (JS_LEFT, event.value)
+        # else:
+        #   yield JS_X_CENTER
 
       # Y axis
       if event.type == evdev.ecodes.EV_ABS and event.code == evdev.ecodes.ABS_Y:
-        print(evdev.util.categorize(event))
+        # print(evdev.util.categorize(event))
         if event.value > 200:
-          yield JS_UP
+          yield (JS_UP, event.value)
         if event.value < 50:
-          yield JS_DOWN
-        else:
-          yield JS_Y_CENTER
+          yield (JS_DOWN, event.value)
+        # else:
+        #   yield JS_Y_CENTER
 
       # Buttons
       if event.type == evdev.ecodes.EV_KEY:
         if event.code == evdev.ecodes.BTN_TRIGGER:
-          yield BTN_A
+          yield (BTN_A, event.value)
         if event.code == evdev.ecodes.BTN_THUMB:
-          yield BTN_B
+          yield (BTN_B, event.value)
