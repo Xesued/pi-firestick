@@ -26,18 +26,24 @@ sudo apt-get install pigpio python-pigpio python3-pigpio
 sudo systemctl enable pigpiod
 ```
 
-Install bluetooth
-```bash
-sudo apt-get install bluetooth bluez python-bluez
+Install LCD libraries
+```
+sudo ./setup-lcd.sh
 ```
 
-Install requirements
+Install python requirements
+
 ```bash
 pip3 install -r requirments.txt
 ```
 
 Usage
 -------------
+
+Before anything else, you need to start the pigpiod dameon
+```bash
+sudo pigpiod
+```
 
 Record IR codes for your TV:
 

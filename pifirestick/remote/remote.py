@@ -2,7 +2,7 @@
 The remote code.  Maps the different
 remotes to the arcade inputs
 """
-import asyncio
+from time import sleep, time
 from pifirestick.remote.arcade_stick import ArcadeStick
 from pifirestick.lcd import Lcd
 
@@ -48,10 +48,8 @@ class Remotes:
 
     def on_rotary_change(self, way):
         self.current_remote_index += way
-
         self.lcd.lcd_clear()
         self.lcd.lcd_display_string(self._selected_remote().display_name, 1)
-
 
 
 
